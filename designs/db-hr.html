@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Space42 • HR Dashboard</title>
+  <style>
+    :root{
+      /* WHITE + BLUE (same layout, just theme) */
+      --bg:#f6f9ff;
+
+      /* Surfaces */
+      --panel: rgba(255,255,255,.78);
+      --panel2: rgba(255,255,255,.90);
+
+      /* Borders (blue-tinted, subtle) */
+      --border: rgba(37,99,235,.14);
+      --border2: rgba(37,99,235,.22);
+
+      /* Text */
+      --text: rgba(15,23,42,.92);
+      --muted: rgba(15,23,42,.58);
+
+      /* Accents */
+      --vio:#2563eb; /* primary blue */
+      --sky:#38bdf8; /* light blue */
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --slate:#64748b;
+
+      /* Shadow (lighter) */
+      --shadow: 0 18px 60px rgba(2,6,23,.12);
+
+      /* Radii */
+      --r12: 12px;
+      --r14: 14px;
+      --r18: 18px;
+      --r22: 22px;
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      /* light background glow */
+      background:
+        radial-gradient(900px 520px at 20% 10%, rgba(37,99,235,.14), transparent 60%),
+        radial-gradient(820px 520px at 85% 18%, rgba(56,189,248,.12), transparent 58%),
+        radial-gradient(900px 620px at 60% 100%, rgba(37,99,235,.08), transparent 55%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 55%, #f2f6ff 100%);
+    }
+
+    .wrap{
+      max-width: 1320px;
+      margin: 18px auto 26px;
+      padding: 0 18px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--r22);
+      background: rgba(255,255,255,.70);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 14px;
+      z-index: 50;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      user-select:none;
+      min-width: 220px;
+    }
+    .mark{
+      width:36px;
+      height:36px;
+      border-radius: 14px;
+      background:
+        radial-gradient(16px 16px at 30% 30%, rgba(255,255,255,.55), transparent 55%),
+        linear-gradient(135deg, rgba(37,99,235,.95), rgba(56,189,248,.92));
+      box-shadow: 0 14px 40px rgba(37,99,235,.22);
+    }
+    .brand small{
+      display:block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 0;
+      flex: 1;
+      justify-content:flex-end;
+    }
+
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.85);
+      border-radius: var(--r14);
+      max-width: 600px;
+      width: 100%;
+    }
+    .search input{
+      width:100%;
+      border:0;
+      outline:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      min-width: 0;
+    }
+    .search svg{ width:18px; height:18px; opacity:.85; flex:0 0 auto; color: rgba(15,23,42,.78); }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.88);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: var(--r12);
+      font-weight: 900;
+      font-size: 13px;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.98);
+      border-color: var(--border2);
+    }
+    .btn-primary{
+      border-color: rgba(37,99,235,.40);
+      background: linear-gradient(135deg, rgba(37,99,235,.92), rgba(56,189,248,.85));
+      color: white;
+    }
+    .btn-primary:hover{
+      background: linear-gradient(135deg, rgba(37,99,235,.96), rgba(56,189,248,.90));
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+    .pulse{
+      width:8px; height:8px; border-radius:99px;
+      background: var(--ok);
+      box-shadow: 0 0 0 6px rgba(22,163,74,.14);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); opacity: 1; }
+      50%{ transform: scale(1.12); opacity: .75; }
+    }
+
+    /* Notifications dropdown */
+    .notifWrap{ position: relative; }
+    .badgeCount{
+      position:absolute;
+      top:-6px; right:-6px;
+      background: rgba(37,99,235,.95);
+      color:white;
+      font-size: 11px;
+      font-weight: 900;
+      width:18px; height:18px;
+      border-radius: 99px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,.55);
+      box-shadow: 0 10px 24px rgba(37,99,235,.22);
+    }
+    .dropdown{
+      position:absolute;
+      right:0;
+      top: 50px;
+      width: 360px;
+      border-radius: var(--r18);
+      border: 1px solid rgba(37,99,235,.16);
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 22px 70px rgba(2,6,23,.14);
+      overflow:hidden;
+      display:none;
+    }
+    .dropdown.open{ display:block; }
+    .dropHead{
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom: 1px solid rgba(37,99,235,.12);
+      background: rgba(37,99,235,.06);
+    }
+    .dropHead b{ font-size: 13px; }
+    .dropHead span{ font-size: 12px; color: rgba(15,23,42,.62); font-weight: 900; }
+    .dropBody{ padding: 12px; }
+    .notif{
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(37,99,235,.10);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .notif:last-child{ border-bottom:0; padding-bottom:0; }
+    .notif:first-child{ padding-top:0; }
+    .notif b{ display:block; font-size: 13px; color: rgba(15,23,42,.92); }
+    .notif span{ display:block; margin-top: 3px; color: rgba(15,23,42,.62); font-size: 12px; font-weight: 800; line-height: 1.35; }
+    .t{
+      color: rgba(15,23,42,.55);
+      font-size: 11px;
+      font-weight: 900;
+      white-space:nowrap;
+      margin-left: 10px;
+    }
+
+    /* Board */
+    .board{
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.58);
+      border-radius: var(--r22);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 14px;
+      align-items:stretch;
+      min-height: 720px;
+    }
+
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; min-height:auto; }
+      .search{ display:none; }
+      .dropdown{ width: 92vw; }
+    }
+
+    .leftCol{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+    }
+    .rightCol{
+      display:grid;
+      grid-template-rows: auto 1fr 1fr;
+      gap: 14px;
+    }
+
+    .panel{
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      border-radius: var(--r18);
+      overflow:hidden;
+    }
+    .panelHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(37,99,235,.10);
+      background: rgba(37,99,235,.05);
+    }
+    .panelHead b{ font-size: 13px; }
+    .panelHead span{ font-size: 12px; color: rgba(15,23,42,.60); font-weight: 900; }
+    .panelBody{ padding: 12px; }
+
+    /* KPI row */
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .kpis{ grid-template-columns: repeat(2,1fr); }
+    }
+    .kpi{
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      border-radius: var(--r14);
+      padding: 12px;
+    }
+    .kpi span{
+      display:block;
+      color: rgba(15,23,42,.60);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .kpi b{
+      display:block;
+      font-size: 18px;
+      margin-top: 6px;
+      letter-spacing: -.2px;
+      color: rgba(15,23,42,.92);
+    }
+    .kpi .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(15,23,42,.68);
+    }
+    .kpi .tag i{
+      width:10px; height:10px; border-radius:99px;
+      background: rgba(56,189,248,.95);
+      box-shadow: 0 0 0 6px rgba(56,189,248,.16);
+      display:inline-block;
+    }
+    .kpi .tag i.warn{ background: rgba(245,158,11,.95); box-shadow: 0 0 0 6px rgba(245,158,11,.14); }
+    .kpi .tag i.ok{ background: rgba(22,163,74,.95); box-shadow: 0 0 0 6px rgba(22,163,74,.14); }
+    .kpi .tag i.vio{ background: rgba(37,99,235,.95); box-shadow: 0 0 0 6px rgba(37,99,235,.14); }
+
+    /* Jobs list */
+    #jobsList{
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 6px;
+      display:grid;
+      gap:10px;
+    }
+    #jobsList::-webkit-scrollbar{ width: 8px; }
+    #jobsList::-webkit-scrollbar-thumb{
+      background: rgba(37,99,235,.18);
+      border-radius: 999px;
+    }
+    #jobsList::-webkit-scrollbar-track{ background: transparent; }
+
+    .jobRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px;
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      border-radius: var(--r14);
+    }
+    .jobRow:hover{
+      border-color: rgba(37,99,235,.20);
+      background: rgba(255,255,255,.98);
+    }
+    .jobMeta{ min-width:0; }
+    .jobMeta b{
+      display:block;
+      font-size: 13px;
+      letter-spacing: -.1px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 560px;
+      color: rgba(15,23,42,.92);
+    }
+    .jobMeta .sub{
+      margin-top: 5px;
+      color: rgba(15,23,42,.58);
+      font-size: 12px;
+      font-weight: 800;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .badge2{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(37,99,235,.14);
+      background: rgba(37,99,235,.06);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(15,23,42,.72);
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:99px;
+      background: rgba(100,116,139,.45);
+      box-shadow: 0 0 0 6px rgba(100,116,139,.10);
+    }
+    .dot.open{ background: rgba(22,163,74,.95); box-shadow: 0 0 0 6px rgba(22,163,74,.14); }
+    .dot.paused{ background: rgba(245,158,11,.95); box-shadow: 0 0 0 6px rgba(245,158,11,.14); }
+    .dot.closed{ background: rgba(100,116,139,.65); box-shadow: 0 0 0 6px rgba(100,116,139,.12); }
+
+    .rowActions{ display:flex; gap:8px; flex:0 0 auto; }
+    .iconBtn{
+      width:40px; height:40px;
+      border-radius: var(--r12);
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      display:grid; place-items:center;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      color: rgba(15,23,42,.85);
+    }
+    .iconBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.98);
+      border-color: rgba(37,99,235,.20);
+    }
+    .iconBtn svg{ width:18px; height:18px; opacity:.9; }
+
+    /* Applicants table */
+    table{ width:100%; border-collapse:collapse; }
+    thead th{
+      text-align:left;
+      padding: 10px 0;
+      font-size: 11px;
+      color: rgba(15,23,42,.52);
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(37,99,235,.12);
+    }
+    tbody td{
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(37,99,235,.10);
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(15,23,42,.88);
+    }
+    .nameCell{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+    .avatar{
+      width:34px; height:34px;
+      border-radius: var(--r12);
+      background: rgba(37,99,235,.12);
+      border: 1px solid rgba(37,99,235,.14);
+      flex:0 0 auto;
+    }
+    .nameCell b{
+      display:block;
+      font-size: 13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 260px;
+      color: rgba(15,23,42,.92);
+    }
+    .nameCell span{
+      display:block;
+      margin-top: 2px;
+      color: rgba(15,23,42,.55);
+      font-size: 12px;
+      font-weight: 800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 260px;
+    }
+    .stage{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(37,99,235,.14);
+      background: rgba(37,99,235,.06);
+      color: rgba(15,23,42,.80);
+      font-weight: 900;
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    /* Trend chart */
+    .chartBox{
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      border-radius: var(--r14);
+      padding: 10px;
+    }
+    .legend{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+      color: rgba(15,23,42,.62);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .leg{ display:flex; align-items:center; gap:8px; }
+    .sw{
+      width:10px; height:10px; border-radius:99px;
+      background: rgba(37,99,235,.92);
+      box-shadow: 0 0 0 6px rgba(37,99,235,.14);
+    }
+    .sw2{
+      width:10px; height:10px; border-radius:99px;
+      background: rgba(56,189,248,.92);
+      box-shadow: 0 0 0 6px rgba(56,189,248,.14);
+    }
+
+    /* Onboarding */
+    .progressRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(37,99,235,.10);
+    }
+    .progressRow:last-child{ border-bottom:0; padding-bottom:0; }
+    .progressRow:first-child{ padding-top:0; }
+    .progressRow b{ font-size: 13px; color: rgba(15,23,42,.92); }
+    .progressRow span{ color: rgba(15,23,42,.58); font-weight: 800; font-size: 12px; display:block; margin-top: 2px; }
+    .bar{
+      width: 140px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(37,99,235,.10);
+      overflow:hidden;
+      border: 1px solid rgba(37,99,235,.10);
+      flex:0 0 auto;
+    }
+    .bar > i{
+      display:block;
+      height:100%;
+      width: 50%;
+      background: linear-gradient(90deg, rgba(37,99,235,.92), rgba(56,189,248,.85));
+      border-radius: 999px;
+    }
+
+    /* Calendar */
+    .calTop{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-bottom: 10px;
+    }
+    .calBtn{
+      width:36px; height:36px;
+      border-radius: var(--r12);
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      display:grid; place-items:center;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      font-weight: 900;
+      color: rgba(15,23,42,.88);
+      flex:0 0 auto;
+    }
+    .calBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.98);
+      border-color: rgba(37,99,235,.20);
+    }
+    .month{
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: -.2px;
+      color: rgba(15,23,42,.88);
+    }
+    .dow, .days{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+    }
+    .dow div{
+      text-align:center;
+      font-size: 11px;
+      color: rgba(15,23,42,.52);
+      font-weight: 900;
+      padding: 6px 0;
+    }
+    .day{
+      height: 34px;
+      border-radius: var(--r12);
+      border: 1px solid rgba(37,99,235,.12);
+      background: rgba(255,255,255,.92);
+      display:grid;
+      place-items:center;
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(15,23,42,.86);
+      cursor:pointer;
+      user-select:none;
+      transition: background .12s ease, border-color .12s ease, transform .12s ease;
+    }
+    .day:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.98);
+      border-color: rgba(37,99,235,.20);
+    }
+    .day.muted{
+      color: rgba(15,23,42,.34);
+      background: rgba(255,255,255,.72);
+    }
+    .day.active{
+      border-color: rgba(37,99,235,.40);
+      background: rgba(37,99,235,.14);
+      box-shadow: 0 0 0 6px rgba(37,99,235,.12);
+    }
+
+    @media (max-width: 560px){
+      .kpis{ grid-template-columns: 1fr; }
+      .rowActions{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          Space42 HR
+          <small>Hiring + Onboarding</small>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="search" role="search" aria-label="Search">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M10 2a8 8 0 1 0 4.9 14.32l4.39 4.39a1 1 0 0 0 1.42-1.42l-4.39-4.39A8 8 0 0 0 10 2Zm0 14a6 6 0 1 1 6-6a6 6 0 0 1-6 6Z"/>
+          </svg>
+          <input placeholder="Search jobs, applicants, req IDs…" />
+        </div>
+
+        <div class="pill"><span class="pulse"></span> Live</div>
+
+        <div class="notifWrap">
+          <button class="btn" type="button" id="notifBtn">Alerts</button>
+          <div class="badgeCount" id="notifCount">3</div>
+
+          <div class="dropdown" id="notifDrop" aria-label="Notifications dropdown">
+            <div class="dropHead">
+              <b>Notifications</b>
+              <span>recent</span>
+            </div>
+            <div class="dropBody" id="notifs"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="button" id="postJobTop">Post Job</button>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="grid">
+        <!-- LEFT -->
+        <div class="leftCol">
+          <section class="panel">
+            <div class="panelHead">
+              <b>Overview</b>
+              <span>today</span>
+            </div>
+            <div class="panelBody">
+              <div class="kpis">
+                <div class="kpi">
+                  <span>Open roles</span>
+                  <b>12</b>
+                  <div class="tag"><i class="vio"></i> 3 priority reqs</div>
+                </div>
+                <div class="kpi">
+                  <span>Applicants (7d)</span>
+                  <b>148</b>
+                  <div class="tag"><i></i> steady inflow</div>
+                </div>
+                <div class="kpi">
+                  <span>Interviews</span>
+                  <b>23</b>
+                  <div class="tag"><i class="warn"></i> 2 pending</div>
+                </div>
+                <div class="kpi">
+                  <span>Offers</span>
+                  <b>6</b>
+                  <div class="tag"><i class="ok"></i> 2 ready</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHead">
+              <b>Job listings</b>
+              <span><button class="btn btn-primary" style="padding:9px 11px;" type="button" id="postJobMid">Post</button></span>
+            </div>
+            <div class="panelBody">
+              <div id="jobsList"></div>
+
+              <div style="height:14px;"></div>
+
+              <div class="panel" style="border:none;background:transparent;">
+                <div class="panelHead" style="padding: 0 0 10px; border-bottom: 1px solid rgba(37,99,235,.12); background:transparent;">
+                  <b>Applicant status</b>
+                  <span>quick view</span>
+                </div>
+                <div class="panelBody" style="padding: 12px 0 0;">
+                  <table aria-label="Applicants table">
+                    <thead>
+                      <tr>
+                        <th style="width:46%;">Applicant</th>
+                        <th style="width:30%;">Role</th>
+                        <th style="width:16%;">Stage</th>
+                        <th style="width:8%;"> </th>
+                      </tr>
+                    </thead>
+                    <tbody id="appTable"></tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="rightCol">
+          <section class="panel">
+            <div class="panelHead">
+              <b>Applicants trend</b>
+              <span>Applied vs Reviewed</span>
+            </div>
+            <div class="panelBody">
+              <div class="chartBox">
+                <svg viewBox="0 0 380 240" width="100%" height="210" role="img" aria-label="Applicants chart">
+                  <g opacity="0.45">
+                    <path d="M36 30H360" stroke="rgba(37,99,235,.18)" />
+                    <path d="M36 80H360" stroke="rgba(37,99,235,.18)" />
+                    <path d="M36 130H360" stroke="rgba(37,99,235,.18)" />
+                    <path d="M36 180H360" stroke="rgba(37,99,235,.18)" />
+                    <path d="M36 230H360" stroke="rgba(37,99,235,.18)" />
+                  </g>
+                  <path d="M36 230V30" stroke="rgba(37,99,235,.22)" />
+                  <path d="M36 230H360" stroke="rgba(37,99,235,.22)" />
+
+                  <path d="M36 190
+                           C 76 175, 96 155, 116 160
+                           C 142 168, 160 140, 186 135
+                           C 214 130, 232 148, 252 140
+                           C 276 130, 304 110, 360 95
+                           L 360 230 L 36 230 Z"
+                        fill="rgba(37,99,235,.10)"/>
+
+                  <path d="M36 190
+                           C 76 175, 96 155, 116 160
+                           C 142 168, 160 140, 186 135
+                           C 214 130, 232 148, 252 140
+                           C 276 130, 304 110, 360 95"
+                        fill="none" stroke="rgba(37,99,235,.90)" stroke-width="4" stroke-linecap="round"/>
+
+                  <path d="M36 210
+                           C 76 205, 96 195, 116 192
+                           C 142 190, 160 175, 186 172
+                           C 214 170, 252 176, 360 165"
+                        fill="none" stroke="rgba(56,189,248,.85)" stroke-width="3.5" stroke-dasharray="6 8" stroke-linecap="round"/>
+                </svg>
+
+                <div class="legend">
+                  <div class="leg"><span class="sw"></span> Applied</div>
+                  <div class="leg"><span class="sw2"></span> Reviewed</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHead">
+              <b>Onboarding tracker</b>
+              <span><span class="pulse"></span> live</span>
+            </div>
+            <div class="panelBody" id="onboarding"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panelHead">
+              <b>Meetings</b>
+              <span id="calLabel">—</span>
+            </div>
+            <div class="panelBody">
+              <div class="calTop">
+                <button class="calBtn" id="prevBtn" type="button" aria-label="Previous month">‹</button>
+                <div class="month" id="monthTitle">Month</div>
+                <button class="calBtn" id="nextBtn" type="button" aria-label="Next month">›</button>
+              </div>
+              <div class="dow">
+                <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
+              </div>
+              <div class="days" id="daysGrid" aria-label="Calendar days"></div>
+            </div>
+          </section>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const jobs = [
+      { id:"REQ-2149", title:"Software Engineer Intern", location:"Abu Dhabi", status:"open", applicants: 86 },
+      { id:"REQ-2191", title:"Data Analyst (Junior)", location:"Abu Dhabi", status:"open", applicants: 54 },
+      { id:"REQ-2204", title:"Product Operations Associate", location:"Dubai", status:"paused", applicants: 27 },
+      { id:"REQ-2077", title:"UX/UI Designer Intern", location:"Remote", status:"closed", applicants: 64 },
+    ];
+
+    const applicants = [
+      { name:"Aisha Al Mansoori", email:"aisha@example.com", role:"Software Engineer Intern", stage:"Screening", color:"paused" },
+      { name:"Omar Rahman", email:"omar@example.com", role:"Data Analyst (Junior)", stage:"Interview", color:"open" },
+      { name:"Sara Khan", email:"sara@example.com", role:"Product Ops Associate", stage:"Offer", color:"open" },
+      { name:"Yousef Ali", email:"yousef@example.com", role:"Software Engineer Intern", stage:"Reviewed", color:"closed" },
+    ];
+
+    const onboardingSteps = [
+      { title:"Offer accepted", sub:"2 hires today", pct: 85 },
+      { title:"Documents uploaded", sub:"Awaiting 1 candidate", pct: 60 },
+      { title:"Background check", sub:"Processing", pct: 45 },
+      { title:"IT access & accounts", sub:"Queued", pct: 25 },
+    ];
+
+    const notifications = [
+      { title:"New applications", sub:"SWE Intern received 18 new applications", time:"10m" },
+      { title:"Interview scheduled", sub:"Data Analyst • Panel confirmed (Thu, 2:00 PM)", time:"1h" },
+      { title:"Onboarding update", sub:"Background check completed for 1 candidate", time:"3h" },
+    ];
+
+    function statusDot(s){
+      if(s === "open") return "open";
+      if(s === "paused") return "paused";
+      return "closed";
+    }
+    function statusLabel(s){
+      if(s === "open") return "Open";
+      if(s === "paused") return "Paused";
+      return "Closed";
+    }
+
+    const jobsList = document.getElementById('jobsList');
+    function renderJobs(){
+      jobsList.innerHTML = "";
+      jobs.forEach(j => {
+        const row = document.createElement('div');
+        row.className = "jobRow";
+        row.innerHTML = `
+          <div class="jobMeta">
+            <b>${j.title}</b>
+            <div class="sub">
+              <span>${j.id}</span>
+              <span>•</span>
+              <span>${j.location}</span>
+              <span>•</span>
+              <span>${j.applicants} applicants</span>
+              <span class="badge2"><span class="dot ${statusDot(j.status)}"></span>${statusLabel(j.status)}</span>
+            </div>
+          </div>
+          <div class="rowActions">
+            <button class="iconBtn" type="button" title="Edit" onclick="alert('Edit ${j.id} (hook to backend)')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.83H5v-.92l8.06-8.06.92.92L5.92 20.08ZM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>
+            </button>
+            <button class="iconBtn" type="button" title="Update status" onclick="alert('Update status ${j.id} (hook to backend)')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9a9 9 0 0 0-9-9Zm0 16a7 7 0 1 1 7-7a7 7 0 0 1-7 7Zm-1-11h2v8h-2Zm0-2h2v2h-2Z"/></svg>
+            </button>
+          </div>
+        `;
+        jobsList.appendChild(row);
+      });
+    }
+
+    document.getElementById('postJobTop').addEventListener('click', () => alert("Post job (hook to backend)"));
+    document.getElementById('postJobMid').addEventListener('click', () => alert("Post job (hook to backend)"));
+
+    const appTable = document.getElementById('appTable');
+    function renderApplicants(){
+      appTable.innerHTML = "";
+      applicants.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="nameCell">
+              <div class="avatar" aria-hidden="true"></div>
+              <div style="min-width:0;">
+                <b>${a.name}</b>
+                <span>${a.email}</span>
+              </div>
+            </div>
+          </td>
+          <td>${a.role}</td>
+          <td><span class="stage"><span class="dot ${statusDot(a.color)}"></span>${a.stage}</span></td>
+          <td style="text-align:right;">
+            <button class="btn" style="padding:9px 11px;" type="button" onclick="alert('View ${a.email} (hook to backend)')">View</button>
+          </td>
+        `;
+        appTable.appendChild(tr);
+      });
+    }
+
+    const onboarding = document.getElementById('onboarding');
+    function renderOnboarding(){
+      onboarding.innerHTML = "";
+      onboardingSteps.forEach(s => {
+        const row = document.createElement('div');
+        row.className = "progressRow";
+        row.innerHTML = `
+          <div>
+            <b>${s.title}</b>
+            <span>${s.sub}</span>
+          </div>
+          <div class="bar"><i style="width:${s.pct}%"></i></div>
+        `;
+        onboarding.appendChild(row);
+      });
+    }
+
+    const notifBtn = document.getElementById('notifBtn');
+    const notifDrop = document.getElementById('notifDrop');
+    const notifsEl = document.getElementById('notifs');
+    const notifCount = document.getElementById('notifCount');
+
+    function renderNotifs(){
+      notifsEl.innerHTML = "";
+      notifications.forEach(n => {
+        const row = document.createElement('div');
+        row.className = "notif";
+        row.innerHTML = `
+          <div>
+            <b>${n.title}</b>
+            <span>${n.sub}</span>
+          </div>
+          <div class="t">${n.time}</div>
+        `;
+        notifsEl.appendChild(row);
+      });
+      notifCount.textContent = String(notifications.length);
+    }
+
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notifDrop.classList.toggle('open');
+    });
+    notifDrop.addEventListener('click', (e) => e.stopPropagation());
+    document.addEventListener('click', () => notifDrop.classList.remove('open'));
+    document.addEventListener('keydown', (e) => { if(e.key === "Escape") notifDrop.classList.remove('open'); });
+
+    const monthTitle = document.getElementById('monthTitle');
+    const daysGrid = document.getElementById('daysGrid');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const calLabel = document.getElementById('calLabel');
+
+    const now = new Date();
+    let viewYear = now.getFullYear();
+    let viewMonth = now.getMonth();
+    const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const pad2 = n => String(n).padStart(2,'0');
+
+    function renderCalendar(){
+      daysGrid.innerHTML = "";
+      const first = new Date(viewYear, viewMonth, 1);
+      const last  = new Date(viewYear, viewMonth + 1, 0);
+      const daysInMonth = last.getDate();
+
+      const firstDay = first.getDay();
+      const mondayIndex = (firstDay === 0) ? 6 : firstDay - 1;
+
+      const prevLast = new Date(viewYear, viewMonth, 0).getDate();
+      for(let i = 0; i < mondayIndex; i++){
+        const d = document.createElement('div');
+        d.className = "day muted";
+        d.textContent = prevLast - (mondayIndex - 1 - i);
+        daysGrid.appendChild(d);
+      }
+
+      for(let day = 1; day <= daysInMonth; day++){
+        const d = document.createElement('div');
+        d.className = "day";
+        d.textContent = day;
+
+        const isToday = (viewYear === now.getFullYear() && viewMonth === now.getMonth() && day === now.getDate());
+        if(isToday) d.classList.add("active");
+
+        d.addEventListener('click', () => {
+          document.querySelectorAll('.day').forEach(x => x.classList.remove('active'));
+          d.classList.add('active');
+          calLabel.textContent = `${viewYear}-${pad2(viewMonth+1)}-${pad2(day)}`;
+        });
+
+        daysGrid.appendChild(d);
+      }
+
+      const totalCells = daysGrid.children.length;
+      const extra = (totalCells % 7 === 0) ? 0 : (7 - (totalCells % 7));
+      for(let i = 1; i <= extra; i++){
+        const d = document.createElement('div');
+        d.className = "day muted";
+        d.textContent = i;
+        daysGrid.appendChild(d);
+      }
+
+      monthTitle.textContent = `${monthNames[viewMonth]} ${viewYear}`;
+      calLabel.textContent = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      viewMonth--;
+      if(viewMonth < 0){ viewMonth = 11; viewYear--; }
+      renderCalendar();
+    });
+    nextBtn.addEventListener('click', () => {
+      viewMonth++;
+      if(viewMonth > 11){ viewMonth = 0; viewYear++; }
+      renderCalendar();
+    });
+
+    renderJobs();
+    renderApplicants();
+    renderOnboarding();
+    renderNotifs();
+    renderCalendar();
+  </script>
+</body>
+</html>

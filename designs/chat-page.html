@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Space42 • AI Assistant</title>
+  <style>
+    :root {
+      --bg: #f7fbff;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e6eefc;
+      --primary: #1d4ed8;
+      --primary2: #3b82f6;
+      --soft: #eff6ff;
+      --shadow: 0 18px 50px rgba(2, 6, 23, 0.1);
+      --radius-sm: 8px;
+      --radius: 16px;
+      --radius-lg: 20px;
+      --max: 1400px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      
+      --space-2xs: 4px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 70% 20%, rgba(59, 130, 246, 0.14), transparent 55%),
+        radial-gradient(900px 600px at 20% 10%, rgba(29, 78, 216, 0.1), transparent 55%),
+        linear-gradient(180deg, #ffffff 0%, var(--bg) 40%, #ffffff 100%);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Top nav */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.75);
+      border-bottom: 1px solid rgba(230, 238, 252, 0.7);
+    }
+
+    .nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-lg);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--primary);
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0)),
+        linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 12px 30px rgba(29, 78, 216, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo:after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.35), transparent 45%);
+      transform: rotate(18deg);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      color: inherit;
+      text-decoration: none;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      background: rgba(239, 246, 255, 0.9);
+      color: var(--text);
+    }
+
+    .nav-cta {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(2, 6, 23, 0.08);
+    }
+
+    .btn-primary {
+      border-color: rgba(29, 78, 216, 0.22);
+      background: linear-gradient(135deg, rgba(29, 78, 216, 0.12), rgba(59, 130, 246, 0.12));
+      color: var(--primary);
+    }
+
+    /* Layout */
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-lg);
+      min-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: var(--space-xl);
+      align-items: stretch;
+      flex: 1;
+    }
+
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+    }
+
+    /* CHAT PANEL - LEFT SIDE */
+    .chat {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 680px;
+      max-height: 680px;
+      position: relative;
+    }
+
+    /* Animated border line that travels around */
+    .chat::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-lg);
+      padding: 3px;
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0deg,
+        transparent 340deg,
+        rgba(255, 255, 255, 0.95) 345deg,
+        rgba(29, 78, 216, 0.95) 350deg,
+        rgba(15, 23, 42, 0.9) 355deg,
+        rgba(29, 78, 216, 0.95) 360deg,
+        transparent 365deg
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: rotateBorder 3s linear infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Subtle glow that follows the line */
+    .chat::after {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: var(--radius-lg);
+      background: conic-gradient(
+        from var(--angle, 0deg),
+        transparent 0deg,
+        transparent 340deg,
+        rgba(29, 78, 216, 0.2) 350deg,
+        rgba(15, 23, 42, 0.15) 355deg,
+        rgba(29, 78, 216, 0.2) 360deg,
+        transparent 365deg
+      );
+      animation: rotateBorder 3s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(20px);
+    }
+
+    @keyframes rotateBorder {
+      0% {
+        --angle: 0deg;
+        transform: rotate(0deg);
+      }
+      100% {
+        --angle: 360deg;
+        transform: rotate(360deg);
+      }
+    }
+
+    .chat-head {
+      padding: var(--space-md) var(--space-xl);
+      border-bottom: 1px solid rgba(230, 238, 252, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      background:
+        radial-gradient(580px 240px at 80% 10%, rgba(59, 130, 246, 0.14), transparent 60%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.75));
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .chat-head .left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      background:
+        radial-gradient(16px 16px at 28% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0)),
+        linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(59, 130, 246, 0.18));
+      border: 1px solid rgba(230, 238, 252, 0.9);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .avatar svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--primary);
+    }
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1.1;
+    }
+
+    .title b {
+      font-size: 15px;
+      letter-spacing: -0.1px;
+      font-weight: 600;
+    }
+
+    .title span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .chat-body {
+      padding: var(--space-xl);
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      background:
+        radial-gradient(900px 520px at 60% 0%, rgba(59, 130, 246, 0.1), transparent 55%),
+        linear-gradient(180deg, rgba(247, 251, 255, 0.8), rgba(255, 255, 255, 0.65));
+      max-height: calc(100% - 180px);
+      min-height: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .msg {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: flex-end;
+      max-width: 90%;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      justify-content: flex-end;
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+    }
+
+    .bubble {
+      max-width: 100%;
+      padding: var(--space-md) var(--space-lg);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(230, 238, 252, 0.9);
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 10px 22px rgba(2, 6, 23, 0.06);
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .msg.user .bubble {
+      background: linear-gradient(135deg, rgba(29, 78, 216, 0.12), rgba(59, 130, 246, 0.12));
+      border-color: rgba(29, 78, 216, 0.22);
+    }
+
+    .meta {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0 0 var(--space-2xs) 0;
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .typing i {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(100, 116, 139, 0.8);
+      display: inline-block;
+      animation: blink 1.05s ease-in-out infinite;
+    }
+
+    .typing i:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .typing i:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    @keyframes blink {
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.35;
+      }
+      50% {
+        transform: translateY(-2px);
+        opacity: 1;
+      }
+    }
+
+    .chat-foot {
+      padding: var(--space-lg) var(--space-xl);
+      border-top: 1px solid rgba(230, 238, 252, 0.95);
+      background: rgba(255, 255, 255, 0.82);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .composer {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      background: rgba(239, 246, 255, 0.55);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      border-radius: var(--radius);
+      padding: var(--space-sm);
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      background: rgba(255, 255, 255, 0.88);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08);
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--primary);
+    }
+
+    textarea {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      resize: none;
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: var(--space-xs);
+      min-height: 44px;
+      max-height: 100px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .send {
+      background: linear-gradient(135deg, rgba(29, 78, 216, 0.14), rgba(59, 130, 246, 0.14));
+      border-color: rgba(29, 78, 216, 0.22);
+    }
+
+    .send svg {
+      fill: var(--primary);
+    }
+
+    .hint {
+      margin-top: var(--space-md);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pill {
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: 999px;
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      background: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08);
+      color: var(--text);
+      background: rgba(239, 246, 255, 0.9);
+    }
+
+    /* JOB POSTINGS PANEL - RIGHT SIDE */
+    .jobs-panel {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 680px;
+      max-height: 680px;
+    }
+
+    .jobs-header {
+      padding: var(--space-lg) var(--space-xl);
+      border-bottom: 1px solid rgba(230, 238, 252, 0.95);
+      background:
+        radial-gradient(580px 240px at 20% 10%, rgba(59, 130, 246, 0.14), transparent 60%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.75));
+      flex-shrink: 0;
+    }
+
+    .jobs-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+      color: var(--text);
+    }
+
+    .jobs-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* Filters */
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-sm);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .filter-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.9);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .filter-select:hover {
+      border-color: rgba(29, 78, 216, 0.22);
+      background: rgba(239, 246, 255, 0.9);
+    }
+
+    .filter-select:focus {
+      border-color: rgba(29, 78, 216, 0.3);
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.08);
+    }
+
+    .search-box {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      padding-left: var(--space-xl);
+      border: 1px solid rgba(230, 238, 252, 0.95);
+      border-radius: var(--radius);
+      background: rgba(239, 246, 255, 0.55);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+      border-color: rgba(29, 78, 216, 0.22);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: var(--space-sm);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: var(--muted);
+      pointer-events: none;
+    }
+
+    /* Jobs List */
+    .jobs-list {
+      padding: var(--space-lg);
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      background: linear-gradient(180deg, rgba(247, 251, 255, 0.8), rgba(255, 255, 255, 0.65));
+    }
+
+    .job-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(230, 238, 252, 0.9);
+      border-radius: var(--radius);
+      padding: var(--space-lg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .job-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.1);
+      border-color: rgba(29, 78, 216, 0.22);
+    }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+      margin-bottom: var(--space-sm);
+    }
+
+    .job-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 var(--space-2xs);
+    }
+
+    .job-company {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .job-badge {
+      padding: var(--space-2xs) var(--space-xs);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .badge-remote {
+      background: rgba(34, 197, 94, 0.12);
+      color: #16a34a;
+      border: 1px solid rgba(34, 197, 94, 0.22);
+    }
+
+    .badge-hybrid {
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+    }
+
+    .badge-onsite {
+      background: rgba(249, 115, 22, 0.12);
+      color: #ea580c;
+      border: 1px solid rgba(249, 115, 22, 0.22);
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .job-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2xs);
+    }
+
+    .job-meta-item svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--muted);
+    }
+
+    .job-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .job-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .job-tag {
+      padding: var(--space-2xs) var(--space-xs);
+      border-radius: var(--radius-sm);
+      background: rgba(239, 246, 255, 0.9);
+      border: 1px solid rgba(230, 238, 252, 0.9);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+      }
+      
+      .chat {
+        min-height: 500px;
+        max-height: 500px;
+      }
+
+      .jobs-panel {
+        min-height: 600px;
+        max-height: 600px;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-inner {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+      
+      .nav-links {
+        display: none;
+      }
+      
+      .wrap {
+        padding: var(--space-md);
+      }
+      
+      .chat-head,
+      .chat-foot,
+      .jobs-header {
+        padding: var(--space-md);
+      }
+      
+      .chat-body,
+      .jobs-list {
+        padding: var(--space-md);
+      }
+      
+      .grid {
+        gap: var(--space-md);
+      }
+      
+      .bubble {
+        padding: var(--space-sm) var(--space-md);
+      }
+      
+      .msg {
+        max-width: 95%;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sr {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .count {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#">
+        <span class="logo" aria-hidden="true"></span>
+        <span>Space42</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#">Careers</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+      </div>
+
+      <div class="nav-cta">
+        <a class="btn btn-primary" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M15.5 19a1 1 0 0 1-.7-.3l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 1 1 1.4 1.4L11.91 11l5 5a1 1 0 0 1-.41 1.7z"/>
+          </svg>
+          Back
+        </a>
+        <a class="btn" href="#">HR Login</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="grid">
+      <!-- LEFT - CHAT -->
+      <section class="chat" aria-label="Chat">
+        <div class="chat-head">
+          <div class="left">
+            <div class="avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2a8 8 0 0 0-4.67 14.5c-.2.63-.6 1.62-1.33 2.5a1 1 0 0 0 .9 1.64c2.46-.22 4.1-1.13 5.1-1.92A8 8 0 1 0 12 2Zm0 14a1 1 0 0 1-1-1v-3H9a1 1 0 0 1 0-2h2V9a1 1 0 0 1 2 0v1h2a1 1 0 0 1 0 2h-2v3a1 1 0 0 1-1 1Z"/></svg>
+            </div>
+            <div class="title">
+              <b>Space42 Assistant</b>
+              <span>Ask about roles, requirements & more</span>
+            </div>
+          </div>
+
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+          <div class="msg bot">
+            <div>
+              <div class="meta">Assistant</div>
+              <div class="bubble">
+                Hi! I can help you find roles, understand requirements, and prep for interviews. What are you looking for?
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-foot">
+          <div class="composer">
+            <button class="icon-btn" id="attachBtn" type="button" title="Attach (UI only)">
+              <span class="sr">Attach</span>
+              <svg viewBox="0 0 24 24"><path d="M16.5 6.5l-7.78 7.78a2.5 2.5 0 0 0 3.54 3.54L18 10.1a4 4 0 0 0-5.66-5.66L5.8 11a5.5 5.5 0 0 0 7.78 7.78l6.36-6.36a1 1 0 0 0-1.42-1.42l-6.36 6.36a3.5 3.5 0 0 1-4.95-4.95l6.54-6.54a2 2 0 0 1 2.83 2.83l-6.72 6.72a.5.5 0 0 1-.71-.71l6.9-6.9a1 1 0 0 0-1.42-1.42l-6.9 6.9a2.5 2.5 0 0 0 3.54 3.54l6.72-6.72Z"/></svg>
+            </button>
+
+            <textarea id="input" placeholder="Type your message… (Enter to send)"></textarea>
+
+            <button class="icon-btn send" id="sendBtn" type="button" title="Send">
+              <span class="sr">Send</span>
+              <svg viewBox="0 0 24 24"><path d="M3 11l17.2-7.4a1 1 0 0 1 1.36 1.18L18.6 21a1 1 0 0 1-1.74.36L12 14l-6.86 7.36A1 1 0 0 1 3.4 21L4.9 13.2 3 11Zm3.5 1.1l2.8 1.2L17 6.7 6.5 12.1Z"/></svg>
+            </button>
+          </div>
+
+          <div class="hint">
+            <div class="pill" data-prompt="Show me Software Engineer roles">Software roles</div>
+            <div class="pill" data-prompt="What remote positions are available?">Remote jobs</div>
+            <div class="pill" data-prompt="Tell me about internships">Internships</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT - JOB POSTINGS -->
+      <section class="jobs-panel" aria-label="Job Postings">
+        <div class="jobs-header">
+          <h2>Current Openings</h2>
+          <p>Filter and explore available positions</p>
+
+          <div class="filters">
+            <!-- Search -->
+            <div class="filter-group" style="grid-column: 1 / -1;">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 0 12a6 6 0 0 0 0-12zm-8 6a8 8 0 1 1 14.32 4.906l5.387 5.387a1 1 0 0 1-1.414 1.414l-5.387-5.387A8 8 0 0 1 2 10z"/></svg>
+                <input type="text" id="searchInput" placeholder="Search jobs by title or keyword..." />
+              </div>
+            </div>
+
+            <!-- Department Filter -->
+            <div class="filter-group">
+              <label class="filter-label" for="deptFilter">Department</label>
+              <select class="filter-select" id="deptFilter">
+                <option value="all">All Departments</option>
+                <option value="engineering">Engineering</option>
+                <option value="product">Product</option>
+                <option value="design">Design</option>
+                <option value="data">Data</option>
+              </select>
+            </div>
+
+            <!-- Location Type Filter -->
+            <div class="filter-group">
+              <label class="filter-label" for="locFilter">Work Type</label>
+              <select class="filter-select" id="locFilter">
+                <option value="all">All Types</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="onsite">On-site</option>
+              </select>
+            </div>
+
+            <!-- Level Filter -->
+            <div class="filter-group">
+              <label class="filter-label" for="levelFilter">Experience</label>
+              <select class="filter-select" id="levelFilter">
+                <option value="all">All Levels</option>
+                <option value="intern">Intern</option>
+                <option value="junior">Junior</option>
+                <option value="mid">Mid-Level</option>
+                <option value="senior">Senior</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="jobs-list" id="jobsList">
+          <!-- Jobs will be dynamically inserted here -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // CHAT FUNCTIONALITY
+    const chatBody = document.getElementById('chatBody');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('sendBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function scrollToBottom() {
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function addMessage(role, text, isTyping = false) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+
+      const inner = document.createElement('div');
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = role === 'user' ? 'You' : 'Assistant';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+
+      if (isTyping) {
+        bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+        bubble.dataset.typing = '1';
+      } else {
+        bubble.textContent = text;
+      }
+
+      inner.appendChild(meta);
+      inner.appendChild(bubble);
+      wrap.appendChild(inner);
+      chatBody.appendChild(wrap);
+      scrollToBottom();
+      return bubble;
+    }
+
+    async function getAssistantReply(userText) {
+      const t = userText.toLowerCase();
+      if (t.includes('software') || t.includes('engineer')) {
+        return "I see we have several Software Engineer positions open across different levels. I can help you understand the requirements, tech stack, and interview process. Which level interests you?";
+      }
+      if (t.includes('remote')) {
+        return "We have multiple remote positions available! Check the filters on the right to see all remote opportunities. Would you like me to recommend specific roles based on your skills?";
+      }
+      if (t.includes('intern')) {
+        return "Our internship program offers hands-on experience across Engineering, Product, and Data teams. Most are 12-week summer programs. What area interests you most?";
+      }
+      if (t.includes('data') || t.includes('analyst')) {
+        return "Our Data team is growing! We're looking for analysts and scientists. The role involves working with product teams to drive insights. Want to know more about the day-to-day work?";
+      }
+      return "I can help you explore our current openings, understand role requirements, or prepare for interviews. Use the filters on the right to browse positions, or tell me what you're looking for!";
+    }
+
+    async function sendMessage(text) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) return;
+
+      addMessage('user', trimmed);
+      input.value = '';
+      resizeInput();
+
+      const typingBubble = addMessage('bot', '', true);
+
+      setTimeout(async () => {
+        const reply = await getAssistantReply(trimmed);
+        typingBubble.textContent = reply;
+        typingBubble.dataset.typing = '0';
+        scrollToBottom();
+      }, 650);
+    }
+
+    function resizeInput() {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+    }
+
+    input.addEventListener('input', resizeInput);
+    sendBtn.addEventListener('click', () => sendMessage(input.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(input.value);
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      chatBody.innerHTML = '';
+      addMessage('bot', "Hi! I can help you find roles, understand requirements, and prep for interviews. What are you looking for?");
+    });
+
+    document.querySelectorAll('.pill').forEach(p => {
+      p.addEventListener('click', () => sendMessage(p.dataset.prompt));
+    });
+
+    // JOB POSTINGS DATA & FUNCTIONALITY
+    const jobs = [
+      {
+        id: 1,
+        title: 'Senior Software Engineer',
+        company: 'Space42 Engineering',
+        department: 'engineering',
+        location: 'remote',
+        level: 'senior',
+        locationType: 'Remote',
+        city: 'San Francisco, CA',
+        salary: '$150k - $200k',
+        posted: '2 days ago',
+        description: 'Build scalable systems and lead technical initiatives for our core platform.',
+        tags: ['React', 'Node.js', 'AWS', 'TypeScript']
+      },
+      {
+        id: 2,
+        title: 'Product Designer',
+        company: 'Space42 Design',
+        department: 'design',
+        location: 'hybrid',
+        level: 'mid',
+        locationType: 'Hybrid',
+        city: 'New York, NY',
+        salary: '$120k - $150k',
+        posted: '1 week ago',
+        description: 'Create beautiful, user-centered experiences across our product suite.',
+        tags: ['Figma', 'UI/UX', 'Design Systems', 'Prototyping']
+      },
+      {
+        id: 3,
+        title: 'Data Analyst',
+        company: 'Space42 Data',
+        department: 'data',
+        location: 'onsite',
+        level: 'junior',
+        locationType: 'On-site',
+        city: 'Austin, TX',
+        salary: '$80k - $100k',
+        posted: '3 days ago',
+        description: 'Analyze product metrics and deliver insights to drive business decisions.',
+        tags: ['SQL', 'Python', 'Tableau', 'Analytics']
+      },
+      {
+        id: 4,
+        title: 'Software Engineering Intern',
+        company: 'Space42 Engineering',
+        department: 'engineering',
+        location: 'hybrid',
+        level: 'intern',
+        locationType: 'Hybrid',
+        city: 'San Francisco, CA',
+        salary: '$40/hr',
+        posted: '5 days ago',
+        description: '12-week summer internship working on real projects with mentorship.',
+        tags: ['JavaScript', 'React', 'Git', 'APIs']
+      },
+      {
+        id: 5,
+        title: 'Product Manager',
+        company: 'Space42 Product',
+        department: 'product',
+        location: 'remote',
+        level: 'mid',
+        locationType: 'Remote',
+        city: 'Remote',
+        salary: '$130k - $160k',
+        posted: '1 day ago',
+        description: 'Define product strategy and work cross-functionally to ship features.',
+        tags: ['Product Strategy', 'Agile', 'Data-Driven', 'Stakeholder Management']
+      },
+      {
+        id: 6,
+        title: 'Frontend Engineer',
+        company: 'Space42 Engineering',
+        department: 'engineering',
+        location: 'remote',
+        level: 'mid',
+        locationType: 'Remote',
+        city: 'Remote',
+        salary: '$110k - $140k',
+        posted: '4 days ago',
+        description: 'Build responsive, accessible web applications with modern frameworks.',
+        tags: ['React', 'TypeScript', 'CSS', 'Accessibility']
+      },
+      {
+        id: 7,
+        title: 'Senior Data Scientist',
+        company: 'Space42 Data',
+        department: 'data',
+        location: 'hybrid',
+        level: 'senior',
+        locationType: 'Hybrid',
+        city: 'Seattle, WA',
+        salary: '$160k - $190k',
+        posted: '1 week ago',
+        description: 'Lead ML initiatives and develop predictive models for our platform.',
+        tags: ['Python', 'Machine Learning', 'TensorFlow', 'Statistics']
+      },
+      {
+        id: 8,
+        title: 'UX Researcher',
+        company: 'Space42 Design',
+        department: 'design',
+        location: 'onsite',
+        level: 'mid',
+        locationType: 'On-site',
+        city: 'Boston, MA',
+        salary: '$100k - $130k',
+        posted: '6 days ago',
+        description: 'Conduct user research to inform product decisions and design direction.',
+        tags: ['User Research', 'Usability Testing', 'Interviews', 'Surveys']
+      }
+    ];
+
+    const jobsList = document.getElementById('jobsList');
+    const searchInput = document.getElementById('searchInput');
+
+    let currentFilters = {
+      department: 'all',
+      location: 'all',
+      level: 'all',
+      search: ''
+    };
+
+    function renderJobs() {
+      const filtered = jobs.filter(job => {
+        const matchDept = currentFilters.department === 'all' || job.department === currentFilters.department;
+        const matchLoc = currentFilters.location === 'all' || job.location === currentFilters.location;
+        const matchLevel = currentFilters.level === 'all' || job.level === currentFilters.level;
+        const matchSearch = currentFilters.search === '' || 
+          job.title.toLowerCase().includes(currentFilters.search.toLowerCase()) ||
+          job.tags.some(tag => tag.toLowerCase().includes(currentFilters.search.toLowerCase()));
+        
+        return matchDept && matchLoc && matchLevel && matchSearch;
+      });
+
+      jobsList.innerHTML = '';
+
+      if (filtered.length === 0) {
+        jobsList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:var(--space-xl);">No jobs match your filters. Try adjusting them!</div>';
+        return;
+      }
+
+      filtered.forEach(job => {
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        
+        let badgeClass = 'badge-remote';
+        if (job.location === 'hybrid') badgeClass = 'badge-hybrid';
+        if (job.location === 'onsite') badgeClass = 'badge-onsite';
+
+        card.innerHTML = `
+          <div class="job-header">
+            <div>
+              <h3 class="job-title">${job.title}</h3>
+              <div class="job-company">${job.company}</div>
+            </div>
+            <div class="job-badge ${badgeClass}">${job.locationType}</div>
+          </div>
+          
+          <div class="job-meta">
+            <div class="job-meta-item">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>
+              ${job.city}
+            </div>
+            <div class="job-meta-item">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8zm.5-13H11v6l5.25 3.15l.75-1.23l-4.5-2.67z"/></svg>
+              ${job.posted}
+            </div>
+            <div class="job-meta-item">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87c1.96 0 2.4-.98 2.4-1.59c0-.83-.44-1.61-2.67-2.14c-2.48-.6-4.18-1.62-4.18-3.67c0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87c-1.5 0-2.4.68-2.4 1.64c0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+              ${job.salary}
+            </div>
+          </div>
+          
+          <div class="job-desc">${job.description}</div>
+          
+          <div class="job-tags">
+            ${job.tags.map(tag => `<span class="job-tag">${tag}</span>`).join('')}
+          </div>
+        `;
+        
+        jobsList.appendChild(card);
+      });
+    }
+
+    // Filter handlers
+    const deptFilter = document.getElementById('deptFilter');
+    const locFilter = document.getElementById('locFilter');
+    const levelFilter = document.getElementById('levelFilter');
+
+    deptFilter.addEventListener('change', (e) => {
+      currentFilters.department = e.target.value;
+      renderJobs();
+    });
+
+    locFilter.addEventListener('change', (e) => {
+      currentFilters.location = e.target.value;
+      renderJobs();
+    });
+
+    levelFilter.addEventListener('change', (e) => {
+      currentFilters.level = e.target.value;
+      renderJobs();
+    });
+
+    // Search handler
+    searchInput.addEventListener('input', (e) => {
+      currentFilters.search = e.target.value;
+      renderJobs();
+    });
+
+    // Initial render
+    renderJobs();
+    resizeInput();
+    scrollToBottom();
+  </script>
+</body>
+</html>

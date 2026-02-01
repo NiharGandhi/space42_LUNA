@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <rect width="40" height="40" rx="8" fill="url(#space-gradient)"/>
+  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" fill="white" font-size="18" font-weight="700" font-family="system-ui, sans-serif">42</text>
+  <defs>
+    <linearGradient id="space-gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0066FF"/>
+      <stop offset="1" stop-color="#3399FF"/>
+    </linearGradient>
+  </defs>
+</svg>
