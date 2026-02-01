@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { jobs, applications } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, ilike } from 'drizzle-orm';
 import { parseResumeWithAI } from '@/lib/ai/resume-parser';
 import { runStage1Screening } from '@/lib/screening/stage1';
 
@@ -32,17 +32,17 @@ export const candidateAgentTools = [
     function: {
       name: 'search_jobs',
       description:
-        'Search for active job openings. Call with NO parameters to return ALL active jobs. Only pass department or location when the candidate explicitly specifies one (e.g. "in Cyber Security" or "in Abu Dhabi"). When they ask "what roles/jobs are there?" or "what positions are open?" without naming a department or location, call search_jobs with no arguments.',
+        'Search for active job openings. Call with NO parameters to return ALL active jobs. Only pass department or location when the candidate explicitly specifies one (e.g. "in Cyber Security" or "in Abu Dhabi"). Department and location use partial, case-insensitive matching: pass the key term (e.g. "software" for Software Engineering, "cyber" for Cyber Security, "remote" for Remote) so "software developer" or "software development" should use department "software".',
       parameters: {
         type: 'object',
         properties: {
           department: {
             type: 'string',
-            description: 'Filter by department only if the candidate clearly said one (e.g. Cyber Security, Software Engineering)',
+            description: 'Filter by department; use key term for partial match (e.g. "software", "cyber", "engineering")',
           },
           location: {
             type: 'string',
-            description: 'Filter by location only if the candidate clearly said one (e.g. Remote, Abu Dhabi)',
+            description: 'Filter by location; use key term for partial match (e.g. "remote", "abu dhabi")',
           },
         },
       },
@@ -111,7 +111,7 @@ You are NOT a human recruiter. You do NOT make final hiring decisions. You do NO
 
 LISTING JOBS:
 - When the candidate asks "what roles/jobs are there?", "what positions are open?", "what do you have?", or similar WITHOUT specifying a department or location, call search_jobs with NO parameters to return ALL active jobs. Do not assume or infer a department from an earlier message unless they clearly just said one (e.g. they said "Software Engineering" or "Cyber Security" in that same turn).
-- Only pass department or location to search_jobs when the candidate explicitly names one (e.g. "roles in Cyber Security" or "jobs in Abu Dhabi").
+- When the candidate asks about a department or type of role (e.g. "software development", "software developer", "cyber", "engineering"), pass the key term to search_jobs as department so partial matching works: e.g. department "software" for Software Engineering, "cyber" for Cyber Security. Do not pass the exact phrase "Software Development" if jobs are stored as "Software Engineering"—use "software" so the search matches.
 
 FORMATTING (so responses are readable and interactive):
 - Use **bold** for job titles and section labels (e.g. **Cyber Security Analyst**).
@@ -224,21 +224,28 @@ async function parseResume(args: {
   }
 }
 
+/** Escape % and _ for safe use in SQL LIKE/ILIKE patterns (Postgres default escape is backslash) */
+function escapeLike(term: string): string {
+  return term.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
 async function searchJobs(args:
   {
     department?: string;
     location?: string
   }): Promise<string> {
   try {
+    const dept = typeof args.department === 'string' ? args.department.trim() : '';
+    const loc = typeof args.location === 'string' ? args.location.trim() : '';
 
     const jobResults = await db.query.jobs.findMany({
-      limit: 10,
-      where: (jobs, { and, eq }) =>
+      limit: 20,
+      where: (jobs) =>
         and(
           eq(jobs.status, 'active'),
-          args.department ? eq(jobs.department, args.department) : undefined,
-          args.location ? eq(jobs.location, args.location) : undefined,
-        )
+          dept ? ilike(jobs.department, `%${escapeLike(dept)}%`) : undefined,
+          loc ? ilike(jobs.location, `%${escapeLike(loc)}%`) : undefined,
+        ),
     })
 
     const simplified = jobResults.map((job) => ({
