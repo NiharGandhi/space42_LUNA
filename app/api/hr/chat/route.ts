@@ -7,18 +7,17 @@ import {
   executeHRAgentTool,
 } from '@/lib/ai/agents/hr-agent';
 import { getSessionUser } from '@/lib/auth/session';
+import { sanitizeChatMessages } from '@/lib/chat/sanitize-messages';
 
 type Message = ChatCompletionMessageParam;
 
 function buildMessages(
-  bodyMessages: { role: 'user' | 'assistant' | 'system'; content: string }[]
+  bodyMessages: Array<{ role?: string; content?: unknown }>
 ): Message[] {
+  const sanitized = sanitizeChatMessages(bodyMessages);
   return [
     { role: 'system', content: hrAgentSystemPrompt },
-    ...bodyMessages.map((m) => ({
-      role: m.role as 'user' | 'assistant' | 'system',
-      content: m.content,
-    })),
+    ...sanitized.map((m) => ({ role: m.role, content: m.content })),
   ];
 }
 
@@ -116,9 +115,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { messages = [] }: { messages?: { role: 'user' | 'assistant' | 'system'; content: string }[] } = body;
+    const { messages = [] }: { messages?: Array<{ role?: string; content?: unknown }> } = body;
 
-    const chatMessages = buildMessages(messages);
+    const chatMessages = buildMessages(Array.isArray(messages) ? messages : []);
     let fullResponse: string;
     try {
       fullResponse = await runAgentLoop(chatMessages, user.id);

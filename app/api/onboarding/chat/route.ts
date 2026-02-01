@@ -14,6 +14,7 @@ import { eq, asc, and } from 'drizzle-orm';
 import { openai } from '@/lib/ai/openai';
 import { buildOnboardingAgentSystemPrompt } from '@/lib/ai/agents/onboarding-agent';
 import { fetchUrlsAsText } from '@/lib/url/fetch-url-text';
+import { sanitizeChatMessages } from '@/lib/chat/sanitize-messages';
 
 /**
  * POST /api/onboarding/chat
@@ -32,9 +33,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const messages = Array.isArray(body.messages) ? body.messages : [];
-    const lastUser = messages.filter((m: { role: string }) => m.role === 'user').pop();
-    if (!lastUser || typeof lastUser.content !== 'string') {
+    const rawMessages = Array.isArray(body.messages) ? body.messages : [];
+    const messages = sanitizeChatMessages(rawMessages);
+    const lastUser = messages.filter((m) => m.role === 'user').pop();
+    if (!lastUser || !lastUser.content) {
       return NextResponse.json(
         { success: false, error: 'Invalid messages; need at least one user message' },
         { status: 400 }
@@ -137,10 +139,7 @@ export async function POST(request: NextRequest) {
 
     const chatMessages = [
       { role: 'system' as const, content: systemPrompt },
-      ...messages.slice(-20).map((m: { role: string; content: string }) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
+      ...messages.slice(-20).map((m) => ({ role: m.role, content: m.content })),
     ];
 
     const response = await openai.chat.completions.create({

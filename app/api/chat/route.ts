@@ -7,23 +7,22 @@ import {
   executeAgentTool,
 } from '@/lib/ai/agents/candidate-agent';
 import { getSessionUser } from '@/lib/auth/session';
+import { sanitizeChatMessages } from '@/lib/chat/sanitize-messages';
 
 type Message = ChatCompletionMessageParam;
 
 function buildMessages(
-  bodyMessages: { role: 'user' | 'assistant' | 'system'; content: string }[],
+  bodyMessages: Array<{ role?: string; content?: unknown }>,
   jobId?: string
 ): Message[] {
   let systemContent = candidateAgentSystemPrompt;
-  if (jobId) {
+  if (jobId && isUUID(jobId)) {
     systemContent += `\n\nThe candidate is currently viewing or applying to job ID: ${jobId}. When relevant, use get_job_details or create_application with this job ID.`;
   }
+  const sanitized = sanitizeChatMessages(bodyMessages);
   const messages: Message[] = [
     { role: 'system', content: systemContent },
-    ...bodyMessages.map((m) => ({
-      role: m.role as 'user' | 'assistant' | 'system',
-      content: m.content,
-    })),
+    ...sanitized.map((m) => ({ role: m.role, content: m.content })),
   ];
   return messages;
 }
@@ -116,7 +115,7 @@ export async function POST(request: NextRequest) {
       resumeFileKey,
       resumeText,
     }: {
-      messages?: { role: 'user' | 'assistant' | 'system'; content: string }[];
+      messages?: Array<{ role?: string; content?: unknown }>;
       jobId?: string;
       resumeUrl?: string;
       resumeFileKey?: string;
@@ -148,7 +147,10 @@ export async function POST(request: NextRequest) {
           ]
         : messages;
 
-    const chatMessages = buildMessages(messagesWithResume, jobId);
+    const chatMessages = buildMessages(
+      Array.isArray(messagesWithResume) ? messagesWithResume : [],
+      typeof jobId === 'string' ? jobId.trim() : undefined
+    );
     const resumeContext =
       resumeUrl || resumeFileKey || resumeText
         ? { resumeUrl, resumeFileKey, resumeText }
