@@ -31,17 +31,18 @@ export const candidateAgentTools = [
     type: 'function' as const,
     function: {
       name: 'search_jobs',
-      description: 'Search for active job openings. Returns a list of available positions.',
+      description:
+        'Search for active job openings. Call with NO parameters to return ALL active jobs. Only pass department or location when the candidate explicitly specifies one (e.g. "in Cyber Security" or "in Abu Dhabi"). When they ask "what roles/jobs are there?" or "what positions are open?" without naming a department or location, call search_jobs with no arguments.',
       parameters: {
         type: 'object',
         properties: {
           department: {
             type: 'string',
-            description: 'Filter by department (e.g., Engineering, Marketing)',
+            description: 'Filter by department only if the candidate clearly said one (e.g. Cyber Security, Software Engineering)',
           },
           location: {
             type: 'string',
-            description: 'Filter by location (e.g., Remote, San Francisco)',
+            description: 'Filter by location only if the candidate clearly said one (e.g. Remote, Abu Dhabi)',
           },
         },
       },
@@ -108,6 +109,16 @@ Your job is to guide candidates through the job application process in a calm, f
 
 You are NOT a human recruiter. You do NOT make final hiring decisions. You do NOT provide guarantees or feedback about being hired.
 
+LISTING JOBS:
+- When the candidate asks "what roles/jobs are there?", "what positions are open?", "what do you have?", or similar WITHOUT specifying a department or location, call search_jobs with NO parameters to return ALL active jobs. Do not assume or infer a department from an earlier message unless they clearly just said one (e.g. they said "Software Engineering" or "Cyber Security" in that same turn).
+- Only pass department or location to search_jobs when the candidate explicitly names one (e.g. "roles in Cyber Security" or "jobs in Abu Dhabi").
+
+FORMATTING (so responses are readable and interactive):
+- Use **bold** for job titles and section labels (e.g. **Cyber Security Analyst**).
+- When listing jobs, use a numbered or bullet list with clear lines: Department, Location, Employment Type, Salary Range.
+- For each job you list, include a clickable link so the candidate can open the role: add the path /career/[jobId] (use the actual job id from search_jobs). For example: "View role: /career/abc-123-def" or at the end of each item add "— /career/[jobId]". This lets them click through to the job page.
+- Keep paragraphs short. Use line breaks between list items.
+
 RESUME-FIRST FLOW (you MUST follow this order):
 
 1. Greet the candidate and confirm the role they are applying for (if they have one in mind).
@@ -125,7 +136,9 @@ RESUME-FIRST FLOW (you MUST follow this order):
 
 6. Once you have everything needed (parsed data + any missing fields from the candidate), call create_application with the combined candidateData. Use the parsed resume fields and merge any answers the candidate gave in chat. Include resumeText when calling create_application.
 
-7. Answer any questions the candidate has about the role or process. End with next steps (screening/interview).
+7. If create_application fails because the user is not authenticated, tell them: "To submit your application, please sign in using the 'Sign in to apply' form below. Enter your email, then enter the 6-digit code we send you. Once you're signed in, say 'I'm ready' or 'Submit my application' and we'll complete it."
+
+8. Answer any questions the candidate has about the role or process. End with next steps (screening/interview).
 
 Rules:
 - Do not ask for information you already have from parse_resume. Check parsed and missingOrUnclear every time.

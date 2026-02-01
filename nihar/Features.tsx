@@ -6,7 +6,7 @@ import { Shield, Clock, Mic, FileCheck, Search, Video, UserCheck } from "lucide-
 
 const Features = () => {
   return (
-    <section className="relative py-24 px-4 sm:px-6 lg:px-8" id="features">
+    <section className="relative py-24 px-4 sm:px-6 lg:px-8 bg-white" id="features">
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

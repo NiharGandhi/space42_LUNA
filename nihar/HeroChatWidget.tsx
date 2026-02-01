@@ -46,6 +46,7 @@ export function HeroChatWidget() {
             hideHeader
             className="!h-full !min-h-0 !border-0 !shadow-none"
             expanded
+            maxMessagesHeight={280}
             initialMessage="Hi! I'm LUNA, your AI application assistant. Which role are you interested in? I can help you explore opportunities or start an application."
           />
         </div>
@@ -97,6 +98,7 @@ export function HeroChatWidget() {
                     hideHeader
                     className="!h-full !min-h-0 !border-0 !shadow-none"
                     expanded
+                    maxMessagesHeight={400}
                     initialMessage="Hi! I'm LUNA, your AI application assistant. Which role are you interested in? I can help you explore opportunities or start an application."
                   />
                 </div>
