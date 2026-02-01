@@ -11,18 +11,18 @@ Career portal with an AI chatbot, multi-stage screening (resume → written Q&A 
 
 | Demo | Description |
 |------|-------------|
-| [Career portal & AI chat](screenshots/Screen%20Recording%202026-02-01%20at%201.39.40%20PM.mov) | Candidate experience: browse jobs, chat with the AI assistant, apply with resume. |
-| [HR dashboard & screening](screenshots/Screen%20Recording%202026-02-01%20at%201.41.56%20PM.mov) | HR workflow: dashboard, AI agent, applications, and screening stages. |
+| [Career portal & AI chat](screenshots/Screen%20Recording%202026-02-01%20at%201.39.40PM.mov) | Candidate experience: browse jobs, chat with the AI assistant, apply with resume. |
+| [HR dashboard & screening](screenshots/Screen%20Recording%202026-02-01%20at%201.41.56PM.mov) | HR workflow: dashboard, AI agent, applications, and screening stages. |
 
 ### Screenshots
 
 | | | |
 |:---------------------------:|:---------------------------:|:---------------------------:|
-| ![Career portal](screenshots/Screenshot%202026-02-01%20at%201.40.53%20PM.png) | ![Application flow](screenshots/Screenshot%202026-02-01%20at%201.45.06%20PM.png) | ![HR view](screenshots/Screenshot%202026-02-01%20at%201.55.10%20PM.png) |
+| ![Career portal](screenshots/Screenshot%202026-02-01%20at%201.40.53PM.png) | ![Application flow](screenshots/Screenshot%202026-02-01%20at%201.45.06PM.png) | ![HR view](screenshots/Screenshot%202026-02-01%20at%201.55.10PM.png) |
 | *Career portal* | *Application flow* | *HR dashboard* |
-| ![Screening](screenshots/Screenshot%202026-02-01%20at%201.55.22%20PM.png) | ![Application detail](screenshots/Screenshot%202026-02-01%20at%201.55.29%20PM.png) | ![Stages](screenshots/Screenshot%202026-02-01%20at%201.55.35%20PM.png) |
+| ![Screening](screenshots/Screenshot%202026-02-01%20at%201.55.22PM.png) | ![Application detail](screenshots/Screenshot%202026-02-01%20at%201.55.29PM.png) | ![Stages](screenshots/Screenshot%202026-02-01%20at%201.55.35PM.png) |
 | *Screening stages* | *Application detail* | *Pipeline view* |
-| ![Onboarding](screenshots/Screenshot%202026-02-01%20at%201.55.40%20PM.png) | | |
+| ![Onboarding](screenshots/Screenshot%202026-02-01%20at%201.55.40PM.png) | | |
 | *Onboarding* | | |
 
 ---
